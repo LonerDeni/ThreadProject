@@ -23,8 +23,8 @@ public class MainRobot {
             };
             Thread threadOne = new Thread(runOne);
             threadOne.start();
-            threadOne.join();
         }
+        System.out.println(Thread.activeCount());
         System.out.println(maxCountRinString());
         countRinString();
     }
@@ -61,13 +61,15 @@ public class MainRobot {
         return route.toString();
     }
 
-    public synchronized static void sizeToFreq(int countR) {
-        int value;
-        if (sizeToFreqMap.containsKey(countR)) {
-            value = sizeToFreqMap.get(countR) + 1;
-        } else {
-            value = 1;
+    public static void sizeToFreq(int countR) {
+        synchronized (sizeToFreqMap) {
+            int value;
+            if (sizeToFreqMap.containsKey(countR)) {
+                value = sizeToFreqMap.get(countR) + 1;
+            } else {
+                value = 1;
+            }
+            sizeToFreqMap.put(countR, value);
         }
-        sizeToFreqMap.put(countR, value);
     }
 }

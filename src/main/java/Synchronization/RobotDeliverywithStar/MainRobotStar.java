@@ -40,7 +40,6 @@ public class MainRobotStar {
             };
             Thread threadOne = new Thread(runOne);
             threadOne.start();
-            threadOne.join();
         }
 
         threadTwo.interrupt();
