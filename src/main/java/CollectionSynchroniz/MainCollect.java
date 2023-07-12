@@ -10,10 +10,11 @@ public class MainCollect {
     static ArrayBlockingQueue<String> wordC = new ArrayBlockingQueue<>(100);
     private static final int count = 10_000;
     private static final int lengthWord = 100_000;
+    public static Thread genWord;
 
     public static void main(String[] args) {
 
-        new Thread(() -> {
+        genWord = new Thread(() -> {
             for (int i = 0; i < count; i++) {
                 String generateText = generateText("abc", lengthWord);
                 try {
@@ -24,19 +25,23 @@ public class MainCollect {
                     e.printStackTrace();
                 }
             }
-        }).start();
+        });
+        genWord.start();
 
-        new Thread(() -> {
-            System.out.println(theNumberChar('a', wordA));
-        }).start();
+        Thread oneThread = createThread('a', wordA);
+        Thread twoThread = createThread('b', wordB);
+        Thread threeThread = createThread('c', wordC);
+        oneThread.start();
+        twoThread.start();
+        threeThread.start();
 
-        new Thread(() -> {
-            System.out.println(theNumberChar('b', wordB));
-        }).start();
+    }
 
-        new Thread(() -> {
-            System.out.println(theNumberChar('c', wordC));
-        }).start();
+    public static Thread createThread(char letter, ArrayBlockingQueue<String> arrayWord) {
+        return new Thread(() -> {
+            long countChar = theNumberChar(letter, arrayWord);
+            System.out.println("Количесвто букв '" + letter + "' = " + countChar);
+        });
     }
 
     public static String generateText(String letters, int length) {
@@ -47,25 +52,21 @@ public class MainCollect {
         return text.toString();
     }
 
-    public static String theNumberChar(char letter, ArrayBlockingQueue<String> arrayWord) {
+    public static Long theNumberChar(char letter, ArrayBlockingQueue<String> arrayWord) {
         long maxCount = 0;
-        String maxWord = null;
-        int j = 0;
-        while (j < count){
+        while (genWord.isAlive()) {
             for (String word : arrayWord) {
                 long count = word.chars().filter(x -> x == letter).count();
                 if (maxCount < count) {
                     maxCount = count;
-                    maxWord = word;
                 }
                 try {
                     arrayWord.take();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                j++;
             }
         }
-        return "Количесвто букв " + "'" + letter + "'" + " = " + maxCount + " , слово - " + maxWord;
+        return maxCount;
     }
 }
